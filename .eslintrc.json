@@ -11,7 +11,9 @@
         "singleQuote": true,
         "endOfLine": "auto"
       }
-    ]
+    ],
+    "no-console": "off",
+    "tailwindcss/no-custom-classname": "off"
   },
   "overrides": [
     {
