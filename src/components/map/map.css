@@ -1,0 +1,25 @@
+/* Essential Leaflet CSS */
+@import '~leaflet/dist/leaflet.css';
+
+.map-container {
+  height: 100vh;
+  width: 100%;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Custom marker styles */
+.custom-marker {
+  background: #ff4444;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
+
+.location-popup {
+  min-width: 200px;
+}

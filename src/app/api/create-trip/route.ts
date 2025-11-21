@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
       { status: 401 },
     );
   try {
-    console.log('inserted data:', body); // replace with actual data logging
+    // console.log('inserted data:', body);  replace with actual data logging
+    Array.isArray(body);
     return NextResponse.json(
       { message: 'Data submitted successfully' },
       { status: 200 },

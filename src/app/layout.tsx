@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={figtree.className}>
         <div className="flex min-h-screen flex-col">
           <Header />
-          <main className="my-12 flex flex-1 flex-col">{children}</main>
+          <main className="flex flex-1 flex-col">{children}</main>
           <Toaster />
           <Footer />
         </div>

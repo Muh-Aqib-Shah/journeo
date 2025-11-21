@@ -55,7 +55,7 @@ const TimeSelectionContent: FC<Props> = ({
       try {
         if (setValue) setValue('times', time);
       } catch (e) {
-        console.error(e);
+        // console.error(e);
       }
     };
     registerInput();
