@@ -2,6 +2,7 @@ import { differenceInCalendarDays, isAfter } from 'date-fns';
 import { z } from 'zod';
 
 export const CreateTripSchema = z.object({
+  name: z.string().min(1, 'Trip name is required'),
   destination: z.string().min(1, 'Destination is required'),
   duration: z
     .object({

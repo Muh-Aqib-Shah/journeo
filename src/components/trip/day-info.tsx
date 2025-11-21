@@ -11,7 +11,7 @@ interface Props {
 const DayInfo: FC<Props> = ({ day }) => {
   return (
     <>
-      <div className="timestamp inline-flex h-9 items-center rounded-xl bg-gray-100 px-6">
+      <div className="inline-flex h-9 items-center rounded-xl bg-gray-100 px-6">
         <span className="font-bold capitalize">
           {format(fromUnixTime(day), 'EEE, d MMM')}
         </span>

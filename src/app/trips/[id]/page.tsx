@@ -68,7 +68,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="hidden lg:block" />
+      <div className="hidden bg-red-400 lg:block" />
     </div>
   );
 };
