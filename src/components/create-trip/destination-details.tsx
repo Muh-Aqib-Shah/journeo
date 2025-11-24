@@ -1,11 +1,9 @@
 'use client';
 
-import { CalendarIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { format, isBefore } from 'date-fns';
-import type { Control, FieldValues, UseFormTrigger } from 'react-hook-form';
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import type { Control, UseFormTrigger } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import {
   FormControl,
   FormField,
@@ -14,11 +12,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import type { CreateTripType } from '@/lib/types/create-trip';
 import { cn } from '@/lib/utils';
 
@@ -31,21 +24,6 @@ interface Props {
 }
 
 const DestinationDetails: React.FC<Props> = ({ stepfn, control, trigger }) => {
-  const renderDate = (field: FieldValues) => {
-    if (field.value?.from) {
-      if (field.value?.to) {
-        return (
-          <>
-            {format(field.value.from, 'LLL dd, y')} -{' '}
-            {format(field.value.to, 'LLL dd, y')}
-          </>
-        );
-      }
-      return format(field.value.from, 'LLL dd, y');
-    }
-    return <span>Pick a date</span>;
-  };
-
   const onSubmit = async () => {
     const res = await trigger([
       'destination',
@@ -98,51 +76,6 @@ const DestinationDetails: React.FC<Props> = ({ stepfn, control, trigger }) => {
           </FormItem>
         )}
       />
-
-      <div className="block gap-3 space-y-4 pt-6 sm:flex sm:space-y-0">
-        <div className="w-full">
-          <FormField
-            control={control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Choose a date plan!</FormLabel>
-                <FormControl>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="date"
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-center text-left font-normal',
-                          !field.value.to && 'text-muted-foreground',
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 size-4" />
-                        {renderDate(field)}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        initialFocus
-                        mode="range"
-                        disabled={(date) => isBefore(date, new Date())}
-                        defaultMonth={field.value?.from}
-                        selected={field.value}
-                        onSelect={(selectedDate) => {
-                          field.onChange(selectedDate);
-                        }}
-                        numberOfMonths={2}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      </div>
 
       <FormField
         control={control}

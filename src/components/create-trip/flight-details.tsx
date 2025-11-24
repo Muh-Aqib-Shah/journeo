@@ -1,10 +1,25 @@
+/* eslint-disable react/no-array-index-key */
+
 'use client';
 
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { format } from 'date-fns';
-import type { Control, UseFormTrigger } from 'react-hook-form';
+import { eachDayOfInterval, format, isBefore } from 'date-fns';
+import { Plus } from 'lucide-react';
+import type {
+  type Control,
+  type FieldValues,
+  type UseFormTrigger,
+  UseFormWatch,
+} from 'react-hook-form';
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   FormControl,
   FormField,
@@ -12,20 +27,107 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import type { CreateTripType } from '@/lib/types/create-trip';
 import { cn } from '@/lib/utils';
 
-import { Calendar } from '../ui/calendar';
-import { Input } from '../ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { ActivitiesList } from './list-activities';
 
 interface Props {
   stepfn: (num: number) => void;
   control: Control<CreateTripType>;
+  watch: UseFormWatch<CreateTripType>;
   trigger: UseFormTrigger<CreateTripType>;
 }
 
-const FlightDetails: React.FC<Props> = ({ stepfn, control, trigger }) => {
+const DateRangePlanner = ({ from, to }: { from: Date; to: Date }) => {
+  if (!from || !to) return null;
+
+  // Generate array of all dates between range
+  const days = eachDayOfInterval({
+    start: from,
+    end: to,
+  });
+  return (
+    <div className="space-y-4">
+      <Accordion type="multiple" className="w-full">
+        {days.map((date, index) => (
+          <AccordionItem
+            key={index}
+            value={`day-${index}`}
+            className="border-b py-2"
+          >
+            <AccordionTrigger className="flex w-full justify-between text-lg font-semibold">
+              <div className="flex items-center gap-2">
+                {format(date, 'EEEE, MMM d')}
+                <span className="ml-2 text-base text-green-700 underline">
+                  Add a location
+                </span>
+              </div>
+            </AccordionTrigger>
+
+            <AccordionContent>
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <Sheet>
+                  <SheetTrigger>
+                    <span className="flex items-center gap-2 rounded-md border border-b-2 p-3">
+                      <Plus className="size-4" />
+                      Add
+                    </span>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="right"
+                    className="!w-[500px] !max-w-[600px] overflow-y-auto p-4"
+                  >
+                    <SheetHeader>
+                      <SheetTitle>Activities</SheetTitle>
+                      <ActivitiesList lat={41.397158} lng={2.160873} />
+                      <SheetDescription>
+                        This action cannot be undone. This will permanently
+                        delete your account and remove your data from our
+                        servers.
+                      </SheetDescription>
+                    </SheetHeader>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
+  );
+};
+
+const renderDate = (field: FieldValues) => {
+  if (field.value?.from) {
+    if (field.value?.to) {
+      return (
+        <>
+          {format(field.value.from, 'LLL dd, y')} -{' '}
+          {format(field.value.to, 'LLL dd, y')}
+        </>
+      );
+    }
+    return format(field.value.from, 'LLL dd, y');
+  }
+  return <span>Pick a date</span>;
+};
+
+const FlightDetails: React.FC<Props> = ({
+  stepfn,
+  control,
+  watch,
+  trigger,
+}) => {
   const onSubmit = async () => {
     const res = await trigger([
       'flightFrom',
@@ -39,113 +141,60 @@ const FlightDetails: React.FC<Props> = ({ stepfn, control, trigger }) => {
     }
   };
 
+  const duration = watch('duration');
+
   return (
     <>
-      <div className="text-center text-2xl sm:text-4xl">
-        Provide Flight Info
-      </div>
+      <div className="text-center text-2xl sm:text-4xl">Iteinary Planner</div>
 
-      <div className="flex gap-4">
-        <div className="w-1/2">
+      <div className="block gap-3 space-y-4 pt-6 sm:flex sm:space-y-0">
+        <div className="w-full">
           <FormField
             control={control}
-            name="flightFrom"
+            name="duration"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>From City</FormLabel>
+                <FormLabel>Choose a date plan!</FormLabel>
                 <FormControl>
-                  <Input placeholder="City *" {...field} />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-center text-left font-normal',
+                          !field.value.to && 'text-muted-foreground',
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 size-4" />
+                        {renderDate(field)}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        disabled={(date) => isBefore(date, new Date())}
+                        defaultMonth={field.value?.from}
+                        selected={field.value}
+                        onSelect={(selectedDate) => {
+                          field.onChange(selectedDate);
+                        }}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
-        <div className="w-1/2">
-          <FormField
-            control={control}
-            name="flightTo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>To City</FormLabel>
-                <FormControl>
-                  <Input placeholder="City *" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
       </div>
 
-      <FormField
-        control={control}
-        name="flightDate"
-        render={({ field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel>Departure Date</FormLabel>
-            <Popover>
-              <PopoverTrigger asChild>
-                <FormControl>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      'w-[240px] pl-3 text-left font-normal',
-                      !field.value && 'text-muted-foreground',
-                    )}
-                  >
-                    {field.value ? (
-                      format(field.value, 'PPP')
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                    <CalendarIcon className="ml-auto size-4 opacity-50" />
-                  </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={field.value}
-                  onSelect={field.onChange}
-                  disabled={(date) => date < new Date()}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="flightNo"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Flight Number</FormLabel>
-            <FormControl>
-              <Input placeholder="Flight No *" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="ticektNo"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Ticket Number or Reservation Code</FormLabel>
-            <FormControl>
-              <Input placeholder="Ticket No *" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {duration?.from && duration?.to && (
+        <DateRangePlanner from={duration.from} to={duration.to} />
+      )}
 
       <div className="flex justify-between gap-4 pt-6">
         <Button

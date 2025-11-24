@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { addDays } from 'date-fns';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import type { Control, UseFormTrigger } from 'react-hook-form';
+import type { Control, UseFormTrigger, UseFormWatch } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -20,6 +20,7 @@ function MountFormPage({
   step,
   stepfn,
   control,
+  watch,
   trigger,
   btnState,
 }: {
@@ -27,6 +28,7 @@ function MountFormPage({
   stepfn: (num: number) => void;
   control: Control<CreateTripType>;
   trigger: UseFormTrigger<CreateTripType>;
+  watch: UseFormWatch<CreateTripType>;
   btnState: boolean;
 }): ReactNode {
   switch (step) {
@@ -40,7 +42,12 @@ function MountFormPage({
       );
     case 2:
       return (
-        <FlightDetails stepfn={stepfn} control={control} trigger={trigger} />
+        <FlightDetails
+          stepfn={stepfn}
+          control={control}
+          watch={watch}
+          trigger={trigger}
+        />
       );
     case 3:
       return (
@@ -71,7 +78,7 @@ export default function TripForm() {
     resolver: zodResolver(CreateTripSchema),
   });
 
-  const { control, handleSubmit, trigger } = form;
+  const { control, watch, handleSubmit, trigger } = form;
 
   const onSubmit = async (values: CreateTripType) => {
     setDisableBtn(true);
@@ -106,6 +113,7 @@ export default function TripForm() {
               step={formStep}
               stepfn={setFormStep}
               control={control}
+              watch={watch}
               trigger={trigger}
               btnState={disableBtn}
             />

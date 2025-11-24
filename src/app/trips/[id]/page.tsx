@@ -8,7 +8,7 @@ import LocationCard from '@/components/trip/location-card';
 import TravelModeDropDown from '@/components/trip/travel-mode-dropdown';
 import VerticalDivider from '@/components/trip/vertical-divider';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { travelModeOption, trip } from '@/lib/data/trip';
+import { travelModeOption, trip } from '@/lib/hooks/trip';
 
 const Page = () => {
   return (
