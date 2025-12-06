@@ -9,12 +9,11 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { CreateTripSchema } from '@/lib/schema/create-trip';
-import type { CreateTripType } from '@/lib/types/create-trip';
+import type { Coordinates, CreateTripType } from '@/lib/types/create-trip';
 
 import { Form } from '../ui/form';
 import DestinationDetails from './destination-details';
-import FlightDetails from './flight-details';
-import HotelDetails from './hotel-details';
+import IteinaryDetails from './iteinary-details';
 
 function MountFormPage({
   step,
@@ -23,6 +22,8 @@ function MountFormPage({
   watch,
   trigger,
   btnState,
+  coords,
+  setCoords,
 }: {
   step: number;
   stepfn: (num: number) => void;
@@ -30,6 +31,8 @@ function MountFormPage({
   trigger: UseFormTrigger<CreateTripType>;
   watch: UseFormWatch<CreateTripType>;
   btnState: boolean;
+  coords: Coordinates | null;
+  setCoords: any;
 }): ReactNode {
   switch (step) {
     case 1:
@@ -38,20 +41,19 @@ function MountFormPage({
           stepfn={stepfn}
           control={control}
           trigger={trigger}
+          watch={watch}
+          setCoords={setCoords}
         />
       );
     case 2:
       return (
-        <FlightDetails
+        <IteinaryDetails
           stepfn={stepfn}
           control={control}
           watch={watch}
-          trigger={trigger}
+          btnState={btnState}
+          coords={coords}
         />
-      );
-    case 3:
-      return (
-        <HotelDetails stepfn={stepfn} control={control} btnState={btnState} />
       );
     default:
       stepfn(1);
@@ -61,19 +63,15 @@ function MountFormPage({
 export default function TripForm() {
   const [formStep, setFormStep] = useState<number>(1);
   const [disableBtn, setDisableBtn] = useState<boolean>(false);
+  const [latNlong, setLatNlong] = useState<null | Coordinates>(null);
 
   const form = useForm<CreateTripType>({
     defaultValues: {
       destination: '',
       duration: { from: new Date(), to: addDays(new Date(), 1) },
       visibility: true,
-      flightFrom: '',
-      flightTo: '',
-      flightNo: '',
-      ticektNo: '',
-      hotelBooking: '',
-      hotelName: '',
-      hotelLocation: '',
+      name: '',
+      iteinary: [],
     },
     resolver: zodResolver(CreateTripSchema),
   });
@@ -116,6 +114,8 @@ export default function TripForm() {
               watch={watch}
               trigger={trigger}
               btnState={disableBtn}
+              coords={latNlong}
+              setCoords={setLatNlong}
             />
           </div>
         </form>

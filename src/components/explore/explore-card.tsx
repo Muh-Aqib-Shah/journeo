@@ -1,4 +1,5 @@
 import { formatDistance, fromUnixTime } from 'date-fns';
+import { Heart, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import * as React from 'react';
 
@@ -43,6 +44,15 @@ const TripCard: React.FC<Props> = ({
         />
       </div>
       <CardContent className="space-y-3 px-2 pb-0">
+        <span className="rounded-md bg-gray-200 p-1 text-sm">
+          {formatDistance(
+            fromUnixTime(duration.from),
+            fromUnixTime(duration.to),
+            {
+              includeSeconds: false,
+            },
+          )}
+        </span>
         <CardTitle className="w-full overflow-hidden text-ellipsis text-nowrap">
           {title}
         </CardTitle>
@@ -60,14 +70,9 @@ const TripCard: React.FC<Props> = ({
             <p className="truncate">{providerName}</p>
           </div>
         </div>
-        <div className="flex">
-          {formatDistance(
-            fromUnixTime(duration.from),
-            fromUnixTime(duration.to),
-            {
-              includeSeconds: false,
-            },
-          )}
+        <div className="flex items-center justify-center">
+          <Heart className="mr-1 fill-current text-red-500" /> 18 •
+          <MessageCircle className="mx-1 mb-1" /> 5
         </div>
       </CardFooter>
     </Card>

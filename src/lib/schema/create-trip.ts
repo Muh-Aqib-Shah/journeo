@@ -1,9 +1,31 @@
-import { differenceInCalendarDays, isAfter } from 'date-fns';
+import { differenceInCalendarDays } from 'date-fns';
 import { z } from 'zod';
 
-export const CreateTripSchema = z.object({
+const ActivitySchema = z.object({
+  name: z.string().min(1, 'Activity Name is required'),
+  description: z.string().min(1, 'Activity Description is required'),
+  pictures: z.array(z.string()),
+  price: z.object({
+    amount: z.number(),
+    currencyCode: z.string(),
+  }),
+  minimumDuration: z.string().min(1, 'Duration are required'),
+});
+
+const IteinarySchema = z.array(
+  z.object({
+    day: z.string(),
+    date: z.date(),
+    activities: z
+      .array(ActivitySchema)
+      .min(1, 'Atleast one activity is required'),
+  }),
+);
+
+const CreateTripSchema = z.object({
   name: z.string().min(1, 'Trip name is required'),
   destination: z.string().min(1, 'Destination is required'),
+  description: z.string().min(20, 'Description must be 20 characters long'),
   duration: z
     .object({
       to: z.date(),
@@ -18,36 +40,12 @@ export const CreateTripSchema = z.object({
         message: 'The duration must be within 90 days time period.',
       },
     ),
-  times: z
-    .object({
-      start: z.number(),
-      end: z.number(),
-    })
-    .refine((elem) => elem.start && elem.end, {
-      message: 'Timings are required',
-    }),
   visibility: z.boolean(),
-  flightFrom: z.string().min(1, 'City name is required'),
-  flightTo: z.string().min(1, 'City name is required'),
-  flightDate: z.date(),
-  flightNo: z.string().min(1, 'Flight number is required'),
-  ticektNo: z.string().min(1, 'Ticket number is required'),
-  hotelBooking: z.string().min(1, 'Booking confirmation is required'),
-  hotelName: z.string().min(1, 'Hotel name is required'),
-  hotelPhone: z
-    .string()
-    .regex(/^\+\d{1,3}-\d{7,15}$/, {
-      message: 'Invalid phone number format\nExample: +91-1234567890',
-    })
-    .optional(),
-  hotelLocation: z.string().min(1, 'Location is required'),
-  checkIn: z
-    .object({
-      start: z.date(),
-      end: z.date(),
-    })
-    .refine(({ start, end }) => start && end && isAfter(end, start), {
-      message: 'Check-out date must be after check-in date',
-      path: ['end'],
-    }),
+  total_days: z.number().optional(),
+  cover_img: z.string().optional(),
+  budget_estimate: z.number().optional(),
+
+  iteinary: IteinarySchema,
 });
+
+export { ActivitySchema, CreateTripSchema, IteinarySchema };
