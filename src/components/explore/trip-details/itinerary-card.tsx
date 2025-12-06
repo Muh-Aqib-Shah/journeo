@@ -43,7 +43,7 @@ export default function ItineraryCard({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
-              Day {itinerary.day}
+              Activity {itinerary.day}
             </div>
             <CardTitle className="mt-3 text-xl">{itinerary.activity}</CardTitle>
             <CardDescription className="mt-1 text-base">

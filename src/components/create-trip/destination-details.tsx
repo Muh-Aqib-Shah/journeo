@@ -1,11 +1,13 @@
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable consistent-return */
+
 'use client';
 
-import { CalendarIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { format, isBefore } from 'date-fns';
-import type { Control, FieldValues, UseFormTrigger } from 'react-hook-form';
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { useEffect, useRef, useState } from 'react';
+import type { Control, UseFormTrigger, UseFormWatch } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import {
   FormControl,
   FormField,
@@ -14,11 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 import type { CreateTripType } from '@/lib/types/create-trip';
 import { cn } from '@/lib/utils';
 
@@ -28,36 +26,57 @@ interface Props {
   stepfn: (num: number) => void;
   control: Control<CreateTripType>;
   trigger: UseFormTrigger<CreateTripType>;
+  watch: UseFormWatch<CreateTripType>;
+  setCoords: any;
 }
 
-const DestinationDetails: React.FC<Props> = ({ stepfn, control, trigger }) => {
-  const renderDate = (field: FieldValues) => {
-    if (field.value?.from) {
-      if (field.value?.to) {
-        return (
-          <>
-            {format(field.value.from, 'LLL dd, y')} -{' '}
-            {format(field.value.to, 'LLL dd, y')}
-          </>
-        );
-      }
-      return format(field.value.from, 'LLL dd, y');
-    }
-    return <span>Pick a date</span>;
-  };
+interface SuggestionTypes {
+  name: String;
+  city: String;
+  country: String;
+  geoCode: { latitude: Number; longitude: Number };
+}
+
+const DestinationDetails: React.FC<Props> = ({
+  stepfn,
+  control,
+  trigger,
+  watch,
+  setCoords,
+}) => {
+  const [suggestions, setSuggestions] = useState<null | SuggestionTypes[]>();
+  const [selected, setSelected] = useState<String>('');
 
   const onSubmit = async () => {
     const res = await trigger([
       'destination',
-      'duration',
-      'times.start',
-      'times.end',
+      'name',
+      'description',
       'visibility',
     ]);
     if (res) {
       stepfn(2);
     }
   };
+
+  const destination = watch('destination');
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!destination || destination.length < 2 || destination === selected)
+      return;
+
+    const delayDebounce = setTimeout(async () => {
+      const res = await fetch(`/api/search-destinations?query=${destination}`);
+      const data = await res.json();
+      setSuggestions(data);
+    }, 300);
+
+    return function cleanup(): void {
+      clearTimeout(delayDebounce);
+    };
+  }, [destination, selected]);
+
   return (
     <>
       <div className="text-center text-2xl sm:text-4xl">Create Vacation</div>
@@ -89,9 +108,45 @@ const DestinationDetails: React.FC<Props> = ({ stepfn, control, trigger }) => {
           <FormItem>
             <FormLabel>Destination</FormLabel>
             <FormControl>
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-0 top-[30%] mx-3" />
-                <Input placeholder="Where to?" className="px-9 " {...field} />
+              <div ref={wrapperRef} className="relative">
+                <MagnifyingGlassIcon className="absolute left-0 top-3 mx-3" />
+                <Input
+                  placeholder="Where to?"
+                  className="px-9"
+                  {...field}
+                  onChange={(e) => {
+                    field.onChange(e);
+                  }}
+                />
+
+                {suggestions && suggestions.length > 0 && (
+                  <div className="absolute top-12 z-20 w-full rounded-md border bg-white shadow">
+                    {suggestions.map((place, idx) => (
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ')
+                            setSelected(place.city);
+                          field.onChange(place.city);
+                          setCoords(place.geoCode);
+                          setSuggestions(null);
+                        }}
+                        key={idx}
+                        className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                        onClick={() => {
+                          setSelected(place.city);
+                          field.onChange(place.city);
+                          setCoords(place.geoCode);
+                          setSuggestions(null);
+                        }}
+                      >
+                        <p className="font-medium">{place.city}</p>
+                        <p className="text-xs text-gray-500">{place.country}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </FormControl>
             <FormMessage />
@@ -99,50 +154,23 @@ const DestinationDetails: React.FC<Props> = ({ stepfn, control, trigger }) => {
         )}
       />
 
-      <div className="block gap-3 space-y-4 pt-6 sm:flex sm:space-y-0">
-        <div className="w-full">
-          <FormField
-            control={control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Choose a date plan!</FormLabel>
-                <FormControl>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="date"
-                        variant="outline"
-                        className={cn(
-                          'w-full justify-center text-left font-normal',
-                          !field.value.to && 'text-muted-foreground',
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 size-4" />
-                        {renderDate(field)}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        initialFocus
-                        mode="range"
-                        disabled={(date) => isBefore(date, new Date())}
-                        defaultMonth={field.value?.from}
-                        selected={field.value}
-                        onSelect={(selectedDate) => {
-                          field.onChange(selectedDate);
-                        }}
-                        numberOfMonths={2}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      </div>
+      <FormField
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Destination</FormLabel>
+            <FormControl>
+              <Textarea
+                className="resize-none"
+                placeholder="Tell us about your trip..."
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={control}

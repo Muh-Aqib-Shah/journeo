@@ -1,10 +1,12 @@
 'use client';
 
+import { CircleChevronLeft, CircleChevronRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import ItineraryCard from '@/components/explore/trip-details/itinerary-card';
+import { Reviews } from '@/components/explore/trip-details/review-section';
 import SuggestedTrips from '@/components/explore/trip-details/suggested-trips';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -111,6 +113,16 @@ export default function TripDetailsPage() {
           />
         </div>
 
+        <div className="my-5 flex justify-between border-black  p-5">
+          <div>
+            <CircleChevronLeft size={30} />
+          </div>
+          <div className="text-2xl ">Day 1</div>
+          <div>
+            <CircleChevronRight size={30} />
+          </div>
+        </div>
+
         <div className="relative grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="space-y-4">
@@ -122,6 +134,10 @@ export default function TripDetailsPage() {
                   onSelect={() => setActiveItinerary(index)}
                 />
               ))}
+            </div>
+
+            <div className="mt-16">
+              <Reviews />
             </div>
 
             <div className="mt-16">

@@ -1,0 +1,30 @@
+import { useEffect, useState } from 'react';
+
+export function useActivities({
+  latitude,
+  longitude,
+}: {
+  latitude: number;
+  longitude: number;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!latitude || !longitude) return;
+
+    async function fetchActivities() {
+      setLoading(true);
+      const res = await fetch(
+        `/api/activities?lat=${latitude}&lng=${longitude}`,
+      );
+      const data = await res.json();
+      setActivities(data.data || []);
+      setLoading(false);
+    }
+
+    fetchActivities();
+  }, [latitude, longitude]);
+
+  return { activities, loading };
+}
