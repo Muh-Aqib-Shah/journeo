@@ -8,7 +8,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import ItineraryCard from '@/components/explore/trip-details/itinerary-card';
 import { Reviews } from '@/components/explore/trip-details/review-section';
-import SuggestedTrips from '@/components/explore/trip-details/suggested-trips';
+import { SuggestedTrips } from '@/components/explore/trip-details/suggested-trips';
 import { Spinner } from '@/components/ui/spinner';
 import { fetchWithAuth } from '@/lib/auth';
 import type { ActivityType } from '@/lib/types/create-trip';
@@ -170,7 +170,7 @@ export default function TripDetailsPage() {
             </div>
 
             <div className="mt-16">
-              <SuggestedTrips />
+              <SuggestedTrips tripId={Number(id)} />
             </div>
           </div>
 

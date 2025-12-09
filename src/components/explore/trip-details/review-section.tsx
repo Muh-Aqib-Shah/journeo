@@ -71,21 +71,18 @@ export const Reviews: React.FC<CommentProps> = ({ trip_id }) => {
     getComments();
   }, []);
 
-  if (comments.length === 0) {
-    return (
-      <div className="flex items-center justify-center">
-        <p>No Reviews for this trip!</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-foreground">Review(s)</h2>
       </div>
       <hr />
-      {comments.map((cmnt) => (
+      {comments.length === 0 ? 
+        <div className="flex items-center justify-center">
+        <p>No Reviews for this trip!</p>
+      </div>
+      :
+      (comments.map((cmnt) => (
         <div className="flex" key={cmnt.comment_id}>
           <div>
             <Avatar>
@@ -100,7 +97,7 @@ export const Reviews: React.FC<CommentProps> = ({ trip_id }) => {
             <div>{cmnt.comment_text} </div>
           </div>
         </div>
-      ))}
+      )))}
       <hr />
       <div className="relative flex pt-5">
         <div>

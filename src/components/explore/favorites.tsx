@@ -14,7 +14,7 @@ interface FavouritesProps {
 async function toggleFavourite(
   state: FavouritesProps,
   setValue: React.Dispatch<React.SetStateAction<FavouritesProps>>,
-  trip_id?: number,
+  tripId?: number,
 ) {
   const oldState: FavouritesProps = { ...state };
   setValue((prev) => {
@@ -29,7 +29,7 @@ async function toggleFavourite(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ trip_id }),
+    body: JSON.stringify({ tripId }),
   });
 
   if (!res.ok) setValue(oldState);

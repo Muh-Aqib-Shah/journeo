@@ -1,15 +1,16 @@
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
+import type { NextApiRequest } from 'next';
 import { NextResponse } from 'next/server';
 
 import { pool } from '@/db/db';
 
-export async function POST() {
+export async function POST(req: NextApiRequest) {
   try {
-    const refreshToken = cookies().get('refresh_token')?.value;
-    if (!refreshToken)
-      return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
+    const refreshToken = req.cookies.refresh_token; // cookies()//.get('refresh_token')?.value;
 
+    if (!refreshToken) {
+      return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
+    }
     const payload: any = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET!,
@@ -20,7 +21,6 @@ export async function POST() {
       [payload.userId, refreshToken],
     );
     const user = (rows as any)[0];
-
     if (!user)
       return NextResponse.json(
         { error: 'Invalid refresh token' },

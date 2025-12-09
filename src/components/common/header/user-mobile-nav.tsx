@@ -5,15 +5,12 @@ import { LogoutButton } from '@/components/auth/logoutButton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
+import { getUser } from '../get-user';
 import MobileLink from './mobile-link';
 
 const UserMobileNav = async () => {
-  //  const { getUser } = getKindeServerSession();
-  const user = {
-    family_name: 'Shah',
-    email: 'aqibShah@gmai.com',
-    given_name: 'Aqib',
-  }; // await getUser();
+  const user = await getUser();
+
   return (
     <>
       <MobileLink href="/trips">
@@ -45,10 +42,8 @@ const UserMobileNav = async () => {
         className="flex h-auto w-full items-center justify-between px-8 py-4"
       >
         <div className="text-left">
-          <h3 className="font-medium">
-            {user?.given_name} {user?.family_name}
-          </h3>
-          <p className="text-gray-500">{user?.email}</p>
+          <h3 className="font-medium">{user?.data.username}</h3>
+          <p className="text-gray-500">{user?.data.email}</p>
         </div>
         <LogoutButton variant="MOBILE" />
       </Button>

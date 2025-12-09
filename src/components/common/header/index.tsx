@@ -3,12 +3,13 @@ import React from 'react';
 
 import { Button } from '@/components/ui/button';
 
+import { getUser } from '../get-user';
 import MobileNav from './mobile-nav';
 import UserNav from './user-nav';
 
 const Header = async () => {
-  // const { isAuthenticated } = getKindeServerSession();
-  const isLoggedIn = true; // await isAuthenticated();
+  const user = await getUser();
+  const isLoggedIn = user.success;
 
   return (
     <header className="container flex h-14 items-center sm:h-16">

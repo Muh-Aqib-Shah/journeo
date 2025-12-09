@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
+import { getUser } from '../get-user';
 import MobileLink from './mobile-link';
 import UserMobileNav from './user-mobile-nav';
 
 const MobileNav = async () => {
-  // const { isAuthenticated } = getKindeServerSession();
-  const isLoggedIn = true; // await isAuthenticated();
+  const user = await getUser();
+  const isLoggedIn = user.success;
 
   return (
     <Sheet>

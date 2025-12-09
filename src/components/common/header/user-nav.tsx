@@ -12,33 +12,26 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { getUser } from '../get-user';
+
 const UserNav = async () => {
-  // const { getUser } = getKindeServerSession();
-  const user = {
-    family_name: 'Shah',
-    email: 'aqibShah@gmai.com',
-    given_name: 'Aqib',
-    picture: undefined,
-  }; // await getUser();
+  const user = await getUser();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar className="size-8">
-          <AvatarImage src={user?.picture ?? undefined} />
-          <AvatarFallback>
-            {user?.given_name?.at(0)}
-            {user?.family_name?.at(0)}
-          </AvatarFallback>
+          <AvatarImage src={undefined} />
+          <AvatarFallback>{user?.data?.username?.at(0) ?? ''}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="p-2 md:w-56">
         <div className="mb-2 space-y-1">
           <DropdownMenuLabel className="text-ellipsis text-nowrap py-0 font-medium">
-            {user?.given_name} {user?.family_name}
+            {user?.data.username}
           </DropdownMenuLabel>
           <DropdownMenuLabel className="text-ellipsis text-nowrap py-0 font-normal text-gray-500">
-            {user?.email}
+            {user?.data.email}
           </DropdownMenuLabel>
         </div>
         <DropdownMenuSeparator />

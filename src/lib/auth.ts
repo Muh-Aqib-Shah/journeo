@@ -16,20 +16,20 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const isServer = typeof window === 'undefined';
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  let completeUrl = baseUrl;
-  if (isServer && url.startsWith('/')) completeUrl = baseUrl + url;
+  const completeUrl = baseUrl + url;
 
-  let res = await fetch(url, options);
+  let res = await fetch(completeUrl, options);
 
   if (res.status === 400) {
-    const refreshRes = await fetch(`${completeUrl}/api/auth/refresh`, {
+    const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, {
       method: 'POST',
+      credentials: 'include',
     });
     if (refreshRes.ok) {
-      res = await fetch(url, options);
+      res = await fetch(completeUrl, options);
     } else {
       if (isServer) {
-        return NextResponse.redirect(new URL('/login', url));
+        return NextResponse.redirect(`${baseUrl}/login`);
       }
       window.location.href = '/login';
       return new Response(null, { status: 401 });

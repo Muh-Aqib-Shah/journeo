@@ -40,6 +40,7 @@ export const LoginForm: React.FC<LoginProps> = ({ access_token }) => {
   const onSubmit = async (values: SignupType) => {
     setDisableBtn(true);
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth//register';
+    console.log("GOING TO: ",endpoint)
     const response = await fetchWithAuth(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
