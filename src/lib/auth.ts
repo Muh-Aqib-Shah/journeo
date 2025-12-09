@@ -16,17 +16,17 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const isServer = typeof window === 'undefined';
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  let completeUrl = baseUrl;
+  let completeUrl = url;
   if (isServer && url.startsWith('/')) completeUrl = baseUrl + url;
 
-  let res = await fetch(url, options);
+  let res = await fetch(completeUrl, options);
 
   if (res.status === 400) {
     const refreshRes = await fetch(`${completeUrl}/api/auth/refresh`, {
       method: 'POST',
     });
     if (refreshRes.ok) {
-      res = await fetch(url, options);
+      res = await fetch(completeUrl, options);
     } else {
       if (isServer) {
         return NextResponse.redirect(new URL('/login', url));
