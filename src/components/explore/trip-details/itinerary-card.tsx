@@ -1,3 +1,5 @@
+/* eslint-disable  react/no-danger */
+
 'use client';
 
 import { Activity, Clock, MapPin } from 'lucide-react';
@@ -10,23 +12,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import type { ActivityType } from '@/lib/types/create-trip';
 
+interface ActivityWithCover extends ActivityType {
+  picture: string;
+}
 interface ItineraryCardProps {
-  itinerary: {
-    id: string;
-    day: number;
-    location: string;
-    activity: string;
-    time: string;
-    description: string;
-    image: string;
-  };
+  activity: ActivityWithCover;
+  index: number;
+  destination: string;
   isActive: boolean;
   onSelect: () => void;
 }
 
 export default function ItineraryCard({
-  itinerary,
+  activity,
+  destination,
+  index,
   isActive,
   onSelect,
 }: ItineraryCardProps) {
@@ -43,12 +45,10 @@ export default function ItineraryCard({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
-              Activity {itinerary.day}
+              Activity {index}
             </div>
-            <CardTitle className="mt-3 text-xl">{itinerary.activity}</CardTitle>
-            <CardDescription className="mt-1 text-base">
-              {itinerary.location}
-            </CardDescription>
+            <CardTitle className="mt-3 text-xl">{activity.name}</CardTitle>
+            <CardDescription className="mt-1 text-base" />
           </div>
         </div>
       </CardHeader>
@@ -56,28 +56,35 @@ export default function ItineraryCard({
       <CardContent className="space-y-4">
         <div className="relative h-48 w-full overflow-hidden rounded-lg bg-muted">
           <Image
-            src={itinerary.image}
-            alt={itinerary.activity}
+            src={activity.picture}
+            alt={activity.picture}
             className="size-full object-cover"
             height={1000}
             width={1000}
           />
         </div>
 
-        <p className="text-sm text-muted-foreground">{itinerary.description}</p>
+        <p
+          className="line-clamp-3 w-full text-sm text-muted-foreground"
+          dangerouslySetInnerHTML={{ __html: activity.description }}
+        />
 
         <div className="grid gap-3 rounded-lg bg-secondary/30 p-4">
           <div className="flex items-center gap-3">
             <Clock className="size-4 text-primary" />
-            <span className="text-sm font-medium">{itinerary.time}</span>
+            <span className="text-sm font-medium">
+              {activity.minimumDuration}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <MapPin className="size-4 text-primary" />
-            <span className="text-sm font-medium">{itinerary.location}</span>
+            <span className="text-sm font-medium">{destination}</span>
           </div>
           <div className="flex items-center gap-3">
             <Activity className="size-4 text-primary" />
-            <span className="text-sm font-medium">{itinerary.activity}</span>
+            <span className="text-sm font-medium">
+              {activity.price.amount} €{' '}
+            </span>
           </div>
         </div>
       </CardContent>

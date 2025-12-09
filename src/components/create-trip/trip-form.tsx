@@ -8,6 +8,7 @@ import type { Control, UseFormTrigger, UseFormWatch } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { fetchWithAuth } from '@/lib/auth';
 import { CreateTripSchema } from '@/lib/schema/create-trip';
 import type { Coordinates, CreateTripType } from '@/lib/types/create-trip';
 
@@ -80,7 +81,7 @@ export default function TripForm() {
 
   const onSubmit = async (values: CreateTripType) => {
     setDisableBtn(true);
-    const data = await fetch('/api/create-trip/', {
+    const data = await fetchWithAuth('/api/create-trip/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

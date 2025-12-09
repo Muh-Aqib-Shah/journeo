@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { fetchWithAuth } from '../auth';
+
 export function useActivities({
   latitude,
   longitude,
@@ -15,7 +17,7 @@ export function useActivities({
 
     async function fetchActivities() {
       setLoading(true);
-      const res = await fetch(
+      const res = await fetchWithAuth(
         `/api/activities?lat=${latitude}&lng=${longitude}`,
       );
       const data = await res.json();

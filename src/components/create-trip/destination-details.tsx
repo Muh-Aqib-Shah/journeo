@@ -1,4 +1,5 @@
 /* eslint-disable react/no-array-index-key */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable consistent-return */
 
 'use client';
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { fetchWithAuth } from '@/lib/auth';
 import type { CreateTripType } from '@/lib/types/create-trip';
 import { cn } from '@/lib/utils';
 
@@ -67,7 +69,9 @@ const DestinationDetails: React.FC<Props> = ({
       return;
 
     const delayDebounce = setTimeout(async () => {
-      const res = await fetch(`/api/search-destinations?query=${destination}`);
+      const res = await fetchWithAuth(
+        `/api/search-destinations?query=${destination}`,
+      );
       const data = await res.json();
       setSuggestions(data);
     }, 300);
@@ -75,7 +79,7 @@ const DestinationDetails: React.FC<Props> = ({
     return function cleanup(): void {
       clearTimeout(delayDebounce);
     };
-  }, [destination, selected]);
+  }, [destination]);
 
   return (
     <>

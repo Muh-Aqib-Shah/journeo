@@ -1,12 +1,7 @@
-import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/components';
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import {
-  IconLogout,
-  IconPlaneTilt,
-  IconSettingsFilled,
-} from '@tabler/icons-react';
+import { IconPlaneTilt, IconSettingsFilled } from '@tabler/icons-react';
 import React from 'react';
 
+import { LogoutButton } from '@/components/auth/logoutButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -18,8 +13,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const UserNav = async () => {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  // const { getUser } = getKindeServerSession();
+  const user = {
+    family_name: 'Shah',
+    email: 'aqibShah@gmai.com',
+    given_name: 'Aqib',
+    picture: undefined,
+  }; // await getUser();
 
   return (
     <DropdownMenu>
@@ -51,10 +51,7 @@ const UserNav = async () => {
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <LogoutLink className="flex w-full">
-            <IconLogout className="mr-2 size-5 stroke-1 text-gray-500" />
-            <span>Logout</span>
-          </LogoutLink>
+          <LogoutButton variant="SCREEN" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

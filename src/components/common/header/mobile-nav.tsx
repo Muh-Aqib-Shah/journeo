@@ -1,9 +1,5 @@
-import {
-  LoginLink,
-  RegisterLink,
-} from '@kinde-oss/kinde-auth-nextjs/components';
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { IconMenu2, IconWorld } from '@tabler/icons-react';
+import Link from 'next/link';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -14,8 +10,8 @@ import MobileLink from './mobile-link';
 import UserMobileNav from './user-mobile-nav';
 
 const MobileNav = async () => {
-  const { isAuthenticated } = getKindeServerSession();
-  const isLoggedIn = await isAuthenticated();
+  // const { isAuthenticated } = getKindeServerSession();
+  const isLoggedIn = true; // await isAuthenticated();
 
   return (
     <Sheet>
@@ -39,16 +35,16 @@ const MobileNav = async () => {
           ) : (
             <>
               <Separator />
-              <RegisterLink>
+              <Link href="/login">
                 <Button className="w-full" size="lg">
                   Get started
                 </Button>
-              </RegisterLink>
-              <LoginLink>
+              </Link>
+              <Link href="/login">
                 <Button className="w-full" variant="secondary" size="lg">
                   Sign in
                 </Button>
-              </LoginLink>
+              </Link>
             </>
           )}
         </div>

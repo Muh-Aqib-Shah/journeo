@@ -1,4 +1,5 @@
 /* eslint-disable react/no-array-index-key */
+/* eslint-disable react-hooks/exhaustive-deps */
 
 'use client';
 
@@ -50,6 +51,8 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
 }) => {
   const iteinary: IteinaryType = watch('iteinary');
 
+  const dateToString = (date: Date) => format(date, 'yyyy-MM-dd');
+
   const updateIteinary = useCallback(
     (newState: IteinaryType) => {
       if (!from || !to) return;
@@ -61,15 +64,16 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
   const addActivity = (date: Date, activity: ActivityType): void => {
     if (!from || !to) return;
 
-    const key = format(date, 'yyyy-MM-dd');
-    const day = iteinary?.find((d) => d.day === key);
+    const key = dateToString(date);
+
+    const day = iteinary?.find((d) => dateToString(d.date) === key);
 
     if (day?.activities.some((a) => a.name === activity.name)) {
       toast.warning('Activity already exists!');
     }
 
     const newState = iteinary.map((d) =>
-      d.day === key
+      dateToString(d.date) === key
         ? {
             ...d,
             activities: [
@@ -80,6 +84,9 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
                   ...activity.price,
                   amount: Number(activity.price?.amount ?? 100),
                 },
+                minimumDuration: activity.minimumDuration
+                  ? activity.minimumDuration
+                  : '1 hour',
               },
             ],
           }
@@ -92,10 +99,10 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
   const removeActivity = (date: Date, activity: ActivityType) => {
     if (!from || !to) return;
 
-    const key = format(date, 'yyyy-MM-dd');
+    const key = dateToString(date);
 
     const newState = iteinary.map((d) =>
-      d.day === key
+      dateToString(d.date) === key
         ? {
             ...d,
             activities: d.activities.filter((a) => a.name !== activity.name),
@@ -108,8 +115,8 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
 
   const getActivitiesFromDate = useCallback(
     (date: Date) => {
-      const key = format(date, 'yyyy-MM-dd');
-      const dayPlanned = iteinary.find((d) => d.day === key);
+      const key = dateToString(date);
+      const dayPlanned = iteinary.find((d) => dateToString(d.date) === key);
       return dayPlanned?.activities ?? [];
     },
     [iteinary],
@@ -117,18 +124,18 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
 
   useEffect(() => {
     if (!from || !to) return;
-    const days = eachDayOfInterval({ start: from, end: to });
+    const dates = eachDayOfInterval({ start: from, end: to });
 
-    const newState = days.map((day) => ({
-      day: format(day, 'yyyy-MM-dd'),
-      date: day,
-      activities: getActivitiesFromDate(day),
+    const newState = dates.map((date, idx) => ({
+      day: idx + 1,
+      date,
+      activities: getActivitiesFromDate(date),
     }));
 
     updateIteinary(newState);
-  }, [from, to, getActivitiesFromDate, updateIteinary]);
+  }, [from, to]);
 
-  const days = eachDayOfInterval({
+  const dates = eachDayOfInterval({
     start: from,
     end: to,
   });
@@ -136,7 +143,7 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
   return (
     <div className="space-y-4">
       <Accordion type="multiple" className="w-full">
-        {days.map((date, index) => (
+        {dates.map((date, index) => (
           <AccordionItem
             key={index}
             value={`day-${index}`}
@@ -199,7 +206,7 @@ export const DateRangePlanner: React.FC<DateRangePlannerProps> = ({
                         selectAct={addActivity}
                       />
                       <SheetDescription>
-                        All Activities under an area os 20km appear here with
+                        All Activities under an area of 20km appear here with
                         price in EUR mentioned aswell as duration
                       </SheetDescription>
                     </SheetHeader>
