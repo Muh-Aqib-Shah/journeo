@@ -1,56 +1,49 @@
-import { IconPlus } from '@tabler/icons-react';
-import Link from 'next/link';
-import React from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 import TripCard from '@/components/trips/trip-card';
-import { Button } from '@/components/ui/button';
+import { fetchWithAuth } from '@/lib/auth';
 
-const Trips = () => {
+async function getTrips() {
+  const headers: HeadersInit = {};
+
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('access_token')?.value;
+  if (accessToken) {
+    headers.cookie = `access_token=${accessToken}`;
+  }
+
+  const res = await fetchWithAuth('/api/my-trips', { headers });
+
+  if (!res.ok) redirect('/login');
+
+  const { data } = await res.json();
+
+  if (!res.ok) return [];
+
+  return data;
+}
+
+export default async function Trips() {
+  const trips: any[] = await getTrips();
+
   return (
-    <div className="container space-y-10">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium">Your Trips</h2>
-        <Link href="/create-trip">
-          <Button className="space-x-1">
-            <IconPlus className="size-5" />
-            <span>New trip</span>
-          </Button>
-        </Link>
-      </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <TripCard
-          date={{ from: 1721478234, to: 1722167509 }}
-          isPrivate
-          image="/placeholder_location.png"
-          location="Karachi, Pakistan"
-        />
-        <TripCard
-          date={{ from: 1721478234, to: 1722167509 }}
-          isPrivate
-          image="/placeholder_location.png"
-          location="Karachi, Pakistan"
-        />
-        <TripCard
-          date={{ from: 1721478234, to: 1722167509 }}
-          isPrivate
-          image="/placeholder_location.png"
-          location="Karachi, Pakistan"
-        />
-        <TripCard
-          date={{ from: 1721478234, to: 1722167509 }}
-          isPrivate={false}
-          image="/placeholder_location.png"
-          location="Karachi, Pakistan"
-        />
-        <TripCard
-          date={{ from: 1721478234, to: 1722167509 }}
-          isPrivate={false}
-          image="/placeholder_location.png"
-          location="Karachi, Pakistan"
-        />
-      </div>
+    <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 xl:grid-cols-3">
+      {trips.length === 0 ? (
+        <p className="w-full text-center text-gray-600">No trips yet!</p>
+      ) : (
+        trips.map((trip) => (
+          <TripCard
+            key={trip.trip_id}
+            trip_id={trip.trip_id}
+            title={trip.title}
+            cover_image_url={trip.cover_image_url}
+            start_date={new Date(trip.start_date)}
+            total_days={trip.total_days}
+            ispublic={!!trip.is_public}
+          />
+        ))
+      )}
     </div>
   );
-};
-
-export default Trips;
+}

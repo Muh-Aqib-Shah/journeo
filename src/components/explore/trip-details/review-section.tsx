@@ -1,35 +1,83 @@
+/* eslint-disable */
+
 'use client';
 
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-const COMMENTS = [
-  {
-    name: 'Aqib Shah',
-    comment_text: 'Wonderfull Trip Idea...',
-  },
-  {
-    name: 'Emily',
-    comment_text: 'I love it',
-  },
-  {
-    name: 'Barb',
-    comment_text: 'I am adding this to my favorites!',
-  },
-];
+interface ReviewTypes {
+  comment_text: string;
+  username: string;
+  created_at: Date;
+  comment_id: string;
+}
 
-export const Reviews = () => {
-  const [comment, setComment] = useState('');
+async function getCommentsForTrip(
+  tripId: number,
+  setValue: React.Dispatch<React.SetStateAction<ReviewTypes[]>>,
+) {
+  try {
+    const res = await fetch(`/api/explore/trips/comment/get?id=${tripId}`);
+
+    const response = await res.json();
+    setValue(response);
+  } catch (error) {
+    return [];
+  }
+}
+async function addCommentsForTrip(
+  tripId: number,
+  comment: string,
+  setValue: React.Dispatch<React.SetStateAction<ReviewTypes[]>>,
+) {
+  try {
+    const res = await fetch(`/api/explore/trips/comment/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ comment, tripId }),
+    });
+
+    const response = await res.json();
+    setValue(response.comments);
+  } catch (error) {
+    return [];
+  }
+}
+interface CommentProps {
+  trip_id: number;
+}
+
+export const Reviews: React.FC<CommentProps> = ({ trip_id }) => {
+  const [mycomment, setMyComment] = useState<string>('');
+  const [comments, setComments] = useState<ReviewTypes[]>([]);
 
   const handleComment = (review: string) => {
     if (!review.trim()) return;
 
-    // add comment to
-    setComment('');
+    addCommentsForTrip(trip_id, mycomment, setComments);
+    setMyComment('');
   };
+
+  useEffect(() => {
+    async function getComments() {
+      await getCommentsForTrip(trip_id, setComments);
+    }
+
+    getComments();
+  }, []);
+
+  if (comments.length === 0) {
+    return (
+      <div className="flex items-center justify-center">
+        <p>No Reviews for this trip!</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -37,17 +85,17 @@ export const Reviews = () => {
         <h2 className="text-2xl font-bold text-foreground">Review(s)</h2>
       </div>
       <hr />
-      {COMMENTS.map((cmnt) => (
-        <div className="flex" key={cmnt.comment_text}>
+      {comments.map((cmnt) => (
+        <div className="flex" key={cmnt.comment_id}>
           <div>
             <Avatar>
-              <AvatarImage src={cmnt.name || ''} alt="avatar" />
-              <AvatarFallback>{cmnt.name.at(0)}</AvatarFallback>
+              <AvatarImage src="" alt="avatar" />
+              <AvatarFallback>{cmnt.username[0]}</AvatarFallback>
             </Avatar>
           </div>
           <div className="ml-2 line-clamp-2 overflow-hidden text-nowrap">
             <div>
-              <p className="truncate text-sm font-bold">{cmnt.name}</p>
+              <p className="truncate text-sm font-bold">{cmnt.username}</p>
             </div>
             <div>{cmnt.comment_text} </div>
           </div>
@@ -58,7 +106,7 @@ export const Reviews = () => {
         <div>
           <Avatar>
             <AvatarImage src="" alt="avatar" />
-            <AvatarFallback>A</AvatarFallback>
+            <AvatarFallback>ME</AvatarFallback>
           </Avatar>
         </div>
         <div className="ml-2 w-full">
@@ -66,16 +114,16 @@ export const Reviews = () => {
             <Textarea
               placeholder="Add a review..."
               className=" w-full rounded-md border-2 border-black "
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              value={mycomment}
+              onChange={(e) => setMyComment(e.target.value)}
             />
           </div>
         </div>
 
         <Button
           variant="outline"
-          className={`absolute bottom-2 right-2 ${!comment.trim() ? 'hidden' : 'block'}`}
-          onClick={() => handleComment(comment)}
+          className={`absolute bottom-2 right-2 ${!mycomment.trim() ? 'hidden' : 'block'}`}
+          onClick={() => handleComment(mycomment)}
         >
           Post
         </Button>

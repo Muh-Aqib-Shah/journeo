@@ -64,15 +64,12 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({
         </CardContent>
         <div className="mt-2 text-sm font-medium text-gray-700">
           <span className="mr-4">Price: ${act.price.amount}</span>
-          <span>Min Duration: {act?.minimumDuration ?? '1 hours'}</span>
+          <span>
+            Min Duration:{' '}
+            {act.minimumDuration ? act.minimumDuration : '1 hours'}
+          </span>
         </div>
       </div>
     </Card>
   );
 };
-
-/* SQL:
-select email from employees where salary > 25000
-
-Mongodb
-db.employees.find({},{email:1,phone:1,_id:0}) */

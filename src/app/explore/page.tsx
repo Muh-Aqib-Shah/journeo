@@ -1,17 +1,36 @@
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+
 import TripCard from '@/components/explore/explore-card';
 import SearchBar from '@/components/explore/search-bar';
+import { fetchWithAuth } from '@/lib/auth';
 
-export default function Explore() {
-  const dummyData = Array(6).fill({
-    img: '/placeholder_location.png',
-    title: 'Exclusice Seoul 8-day Trip',
-    desc: 'enjoy a beautiful vacation in the vibrant city of seoul, get lost in the culture of blossom',
-    providerName: 'Chris Nolan',
-    duration: {
-      from: 1721478234,
-      to: 1722167509,
-    },
+async function getExploreTrips() {
+  const headers: HeadersInit = {};
+
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get('access_token')?.value;
+  if (accessToken) {
+    headers.cookie = `access_token=${accessToken}`;
+  }
+
+  const res = await fetchWithAuth('/api/explore/trips', {
+    headers,
+    cache: 'no-cache',
   });
+
+  if (!res.ok) redirect('/login');
+
+  const { data } = await res.json();
+
+  if (!res.ok) return [];
+
+  return data;
+}
+
+export default async function Explore() {
+  const trips: any[] = await getExploreTrips();
 
   return (
     <div className="container space-y-4">
@@ -25,17 +44,24 @@ export default function Explore() {
       </div>
 
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {dummyData &&
-          dummyData.map((elem) => (
+        {trips.map((trip) => (
+          <Link
+            href={`/explore/${trip.trip_id}?u=${trip.username}`}
+            key={trip.trip_id}
+          >
             <TripCard
-              img={elem.img}
-              title={elem.title}
-              desc={elem.desc}
-              providerName={elem.providerName}
-              duration={elem.duration}
-              key={elem.title}
+              trip_id={trip.trip_id}
+              title={trip.title}
+              cover_image_url={trip.cover_image_url}
+              total_days={trip.total_days}
+              username={trip.username}
+              description={trip.description}
+              likes={trip.likes}
+              isLiked={trip.isLiked}
+              comment_count={trip.comment_count}
             />
-          ))}
+          </Link>
+        ))}
       </div>
     </div>
   );

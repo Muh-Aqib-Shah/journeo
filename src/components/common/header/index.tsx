@@ -1,8 +1,3 @@
-import {
-  LoginLink,
-  RegisterLink,
-} from '@kinde-oss/kinde-auth-nextjs/components';
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import Link from 'next/link';
 import React from 'react';
 
@@ -12,8 +7,8 @@ import MobileNav from './mobile-nav';
 import UserNav from './user-nav';
 
 const Header = async () => {
-  const { isAuthenticated } = getKindeServerSession();
-  const isLoggedIn = await isAuthenticated();
+  // const { isAuthenticated } = getKindeServerSession();
+  const isLoggedIn = true; // await isAuthenticated();
 
   return (
     <header className="container flex h-14 items-center sm:h-16">
@@ -31,10 +26,10 @@ const Header = async () => {
           <UserNav />
         ) : (
           <>
-            <RegisterLink>
+            <Link href="/login">
               <Button size="sm">Get started</Button>
-            </RegisterLink>
-            <LoginLink>
+            </Link>
+            <Link href="/login">
               <Button
                 size="sm"
                 variant="outline"
@@ -42,7 +37,7 @@ const Header = async () => {
               >
                 Sign in
               </Button>
-            </LoginLink>
+            </Link>
           </>
         )}
       </div>

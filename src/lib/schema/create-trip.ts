@@ -9,12 +9,13 @@ const ActivitySchema = z.object({
     amount: z.number(),
     currencyCode: z.string(),
   }),
+  geoCode: z.object({ latitude: z.number(), longitude: z.number() }),
   minimumDuration: z.string().min(1, 'Duration are required'),
 });
 
 const IteinarySchema = z.array(
   z.object({
-    day: z.string(),
+    day: z.number(),
     date: z.date(),
     activities: z
       .array(ActivitySchema)

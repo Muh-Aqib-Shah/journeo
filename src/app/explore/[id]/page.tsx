@@ -3,67 +3,45 @@
 import { CircleChevronLeft, CircleChevronRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import ItineraryCard from '@/components/explore/trip-details/itinerary-card';
 import { Reviews } from '@/components/explore/trip-details/review-section';
 import SuggestedTrips from '@/components/explore/trip-details/suggested-trips';
 import { Spinner } from '@/components/ui/spinner';
+import { fetchWithAuth } from '@/lib/auth';
+import type { ActivityType } from '@/lib/types/create-trip';
 
-// Mock data for the trip
-const TRIP_DATA = {
-  id: '1',
-  name: 'European Summer Adventure',
-  duration: '14 days',
-  destination: 'Europe',
-  image: '/european-trip.jpg',
-  itineraries: [
-    {
-      id: '1',
-      day: 1,
-      location: 'Paris, France',
-      activity: 'Eiffel Tower & City Tour',
-      time: '09:00 AM - 06:00 PM',
-      description: 'Start your journey with iconic Paris landmarks',
-      latitude: 48.8584,
-      longitude: 2.2945,
-      image: '/eiffel-tower.jpg',
-    },
-    {
-      id: '2',
-      day: 2,
-      location: 'Paris, France',
-      activity: 'Louvre Museum & Art Gallery',
-      time: '10:00 AM - 05:00 PM',
-      description: 'Explore world-class art and culture',
-      latitude: 48.8606,
-      longitude: 2.3352,
-      image: '/louvre-museum.jpg',
-    },
-    {
-      id: '3',
-      day: 3,
-      location: 'Amsterdam, Netherlands',
-      activity: 'Canal Boat Tour & Markets',
-      time: '09:00 AM - 04:00 PM',
-      description: 'Experience charming canals and local culture',
-      latitude: 52.3676,
-      longitude: 4.9041,
-      image: '/amsterdam-canal.jpg',
-    },
-    {
-      id: '4',
-      day: 4,
-      location: 'Barcelona, Spain',
-      activity: 'Sagrada Familia & Park Güell',
-      time: '08:00 AM - 06:00 PM',
-      description: "Discover Gaudí's architectural masterpieces",
-      latitude: 41.3874,
-      longitude: 2.1686,
-      image: '/barcelona-sagrada.jpg',
-    },
-  ],
+async function fetchTripByUsername(tripId: number, username: string | null) {
+  const res = await fetchWithAuth(
+    `/api/explore/iteinaries/?id=${tripId}&username=${username}`,
+  );
+  const data = await res.json();
+  return data;
+}
+
+type Coords = { latitude: number; longitude: number };
+
+interface ActivityWithCover extends ActivityType {
+  picture: string;
+}
+
+type Iteinary = {
+  day: number;
+  date: Date;
+  activities: ActivityWithCover[];
 };
+
+interface FetchIteinaryTypes {
+  id: number;
+  budget_estimate: string;
+  destination: string;
+  cover_img: string;
+  name: string;
+  total_days: number;
+  iteinary: Iteinary[];
+}
 
 function TripMapFallback() {
   return (
@@ -74,8 +52,18 @@ function TripMapFallback() {
 }
 
 export default function TripDetailsPage() {
-  const [activeItinerary, setActiveItinerary] = useState(0);
-  const [mapLocation, setMapLocation] = useState(TRIP_DATA.itineraries[0]);
+  const { id } = useParams();
+
+  const searchParams = useSearchParams();
+  const username = searchParams.get('u');
+
+  const [activeItinerary, setActiveItinerary] = useState<number>(0);
+  const [activeActivity, setActiveActivity] = useState<number>(0);
+  const [iteinary, setItenary] = useState<FetchIteinaryTypes | null>(null);
+  const [mapLocation, setMapLocation] = useState<Coords>({
+    latitude: 0,
+    longitude: 0,
+  });
 
   const TripMap = useMemo(
     () =>
@@ -87,18 +75,38 @@ export default function TripDetailsPage() {
   );
 
   useEffect(() => {
-    setMapLocation(TRIP_DATA.itineraries[activeItinerary]);
-  }, [activeItinerary]);
+    const fetchIteinary = async () => {
+      const tripId = Number(id);
+      const response = await fetchTripByUsername(tripId, username);
+      if (response.success) setItenary(response.data);
+    };
+    fetchIteinary();
+  }, [id, username]);
+
+  useEffect(() => {
+    if (iteinary) {
+      const firstActivity =
+        iteinary.iteinary[activeItinerary].activities[activeActivity];
+      setMapLocation(firstActivity.geoCode);
+    }
+  }, [activeItinerary, iteinary, activeActivity]);
+
+  if (!iteinary)
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner className="size-10" />
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold text-foreground">
-            {TRIP_DATA.name}
+            {iteinary?.name ?? ''}
           </h1>
           <p className="mt-2 text-muted-foreground">
-            {TRIP_DATA.duration} • Created By Aqib
+            {iteinary?.total_days ?? ''} days • Created By {username}
           </p>
         </div>
       </header>
@@ -106,38 +114,59 @@ export default function TripDetailsPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="relative mb-32 h-64 w-full overflow-hidden rounded-xl md:h-80 lg:h-96">
           <Image
-            src="/louvre-museum.jpg"
+            src={iteinary?.cover_img ?? ''}
             alt="Hero"
             fill
             className="object-cover"
           />
         </div>
 
-        <div className="my-5 flex justify-between border-black  p-5">
-          <div>
-            <CircleChevronLeft size={30} />
+        {iteinary && (
+          <div className="my-5 flex justify-between border-black p-5">
+            <CircleChevronLeft
+              size={30}
+              className={`${activeItinerary === 0 ? 'cursor-auto opacity-20' : 'cursor-pointer'}`}
+              onClick={() =>
+                setActiveItinerary((prev) => Math.max(prev - 1, 0))
+              }
+            />
+
+            <div className="text-2xl">
+              Day {iteinary.iteinary[activeItinerary].day}
+            </div>
+
+            <CircleChevronRight
+              size={30}
+              className={`${activeItinerary === iteinary.iteinary.length - 1 ? 'cursor-auto opacity-20' : 'cursor-pointer'} `}
+              onClick={() =>
+                setActiveItinerary((prev) =>
+                  Math.min(prev + 1, iteinary.iteinary.length - 1),
+                )
+              }
+            />
           </div>
-          <div className="text-2xl ">Day 1</div>
-          <div>
-            <CircleChevronRight size={30} />
-          </div>
-        </div>
+        )}
 
         <div className="relative grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="space-y-4">
-              {TRIP_DATA.itineraries.map((itinerary, index) => (
-                <ItineraryCard
-                  key={itinerary.id}
-                  itinerary={itinerary}
-                  isActive={activeItinerary === index}
-                  onSelect={() => setActiveItinerary(index)}
-                />
-              ))}
+              {iteinary &&
+                iteinary.iteinary[activeItinerary].activities.map(
+                  (activity, index) => (
+                    <ItineraryCard
+                      key={activity.name}
+                      activity={activity}
+                      index={index + 1}
+                      destination={iteinary.destination}
+                      isActive={activeActivity === index}
+                      onSelect={() => setActiveActivity(index)}
+                    />
+                  ),
+                )}
             </div>
 
             <div className="mt-16">
-              <Reviews />
+              <Reviews trip_id={iteinary.id} />
             </div>
 
             <div className="mt-16">
@@ -147,7 +176,11 @@ export default function TripDetailsPage() {
 
           <div className="sticky top-24 hidden h-[2em] lg:block">
             <Suspense fallback={<p>Error...</p>}>
-              <TripMap posix={[mapLocation.latitude, mapLocation.longitude]} />
+              {mapLocation && (
+                <TripMap
+                  posix={[mapLocation.latitude, mapLocation.longitude]}
+                />
+              )}
             </Suspense>
           </div>
         </div>
