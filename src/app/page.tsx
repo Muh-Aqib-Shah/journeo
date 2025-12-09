@@ -1,6 +1,15 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleStartPlanning = () => {
+    router.push('/create-trip');
+  };
+
   return (
     <div className="flex grow items-center justify-center">
       <div className="relative isolate px-6 lg:px-8">
@@ -14,7 +23,9 @@ export default function Home() {
               experience. Start planning now, make every moment count.
             </p>
             <div className="mt-10">
-              <Button size="lg">Start Planning Your Adventure</Button>
+              <Button size="lg" onClick={handleStartPlanning}>
+                Start Planning Your Adventure
+              </Button>
             </div>
           </div>
         </div>

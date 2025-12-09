@@ -54,13 +54,15 @@ export default function ItineraryCard({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="relative h-48 w-full overflow-hidden rounded-lg bg-muted">
+        <div className="relative h-48 w-full overflow-hidden rounded-lg bg-gray-200">
           <Image
-            src={itinerary.image}
+            src={itinerary.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&h=300&fit=crop'}
             alt={itinerary.activity}
             className="size-full object-cover"
             height={1000}
             width={1000}
+            priority
+            unoptimized
           />
         </div>
 
