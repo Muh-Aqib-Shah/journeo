@@ -8,9 +8,9 @@ export async function GET(req: Request) {
     const limit = searchParams.get('limit') || '6';
     const excludeTripId = searchParams.get('exclude');
 
-    console.log('=== SUGGESTED TRIPS API ===');
-    console.log('Limit:', limit);
-    console.log('Exclude trip ID:', excludeTripId);
+    // console.log('=== SUGGESTED TRIPS API ===');
+    // console.log('Limit:', limit);
+    // console.log('Exclude trip ID:', excludeTripId);
 
     const connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 
       const [rows]: any = await connection.query(query, params);
 
-      console.log(`Fetched ${rows?.length || 0} suggested trips`);
+      // console.log(`Fetched ${rows?.length || 0} suggested trips`);
 
       const trips = Array.isArray(rows) ? rows : [];
       return NextResponse.json({
@@ -48,8 +48,8 @@ export async function GET(req: Request) {
       connection.end();
     }
   } catch (err: any) {
-    console.error('=== ERROR FETCHING SUGGESTED TRIPS ===');
-    console.error('Error message:', err.message);
+    // console.error('=== ERROR FETCHING SUGGESTED TRIPS ===');
+    // console.error('Error message:', err.message);
     return NextResponse.json(
       { trips: [], error: err.message, success: false },
       { status: 500 },
