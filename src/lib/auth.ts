@@ -16,13 +16,10 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const isServer = typeof window === 'undefined';
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const completeUrl = baseUrl + url;
+  let completeUrl = url;
+  if (isServer && url.startsWith('/')) completeUrl = baseUrl + url;
 
-  // Ensure credentials are included so cookies (access_token) are sent
-  const fetchOptions: RequestInit = {
-    ...options,
-    credentials: 'include',
-  };
+  let res = await fetch(completeUrl, options);
 
   let res = await fetch(completeUrl, fetchOptions);
 
