@@ -21,8 +21,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
   let res = await fetch(completeUrl, options);
 
-  let res = await fetch(completeUrl, fetchOptions);
-
   // Only auto-refresh on 401 (Unauthorized), not 400 (Bad Request)
   if (res.status === 401) {
     const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, {
@@ -30,7 +28,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
       credentials: 'include',
     });
     if (refreshRes.ok) {
-      res = await fetch(completeUrl, fetchOptions);
+      res = await fetch(completeUrl, options);
     } else {
       if (isServer) {
         return NextResponse.redirect(`${baseUrl}/login`);
