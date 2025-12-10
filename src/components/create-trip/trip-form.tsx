@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDays } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import type { Control, UseFormTrigger, UseFormWatch } from 'react-hook-form';
@@ -66,6 +67,8 @@ export default function TripForm() {
   const [disableBtn, setDisableBtn] = useState<boolean>(false);
   const [latNlong, setLatNlong] = useState<null | Coordinates>(null);
 
+  const router = useRouter();
+
   const form = useForm<CreateTripType>({
     defaultValues: {
       destination: '',
@@ -81,25 +84,53 @@ export default function TripForm() {
 
   const onSubmit = async (values: CreateTripType) => {
     setDisableBtn(true);
-    const data = await fetchWithAuth('/api/create-trip/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(values),
-    });
-    const response = await data.json();
+    try {
+      const data = await fetchWithAuth('/api/create-trip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
 
-    if (response.error)
-      toast.error('Internal server error', { className: '!text-red-700' });
-    else if (response.message.includes('not logged'))
-      toast.warning('Uh oh! You are not logged in!', {
-        className: '!text-yellow-700',
-      });
-    else
-      toast.success('Form submitted successfully.', {
-        className: '!text-green-700',
-      });
+      const responseText = await data.text();
+      let response;
+      try {
+        response = JSON.parse(responseText);
+      } catch (parseError) {
+        toast.error('Server returned invalid response', {
+          className: '!text-red-700',
+        });
+        setDisableBtn(false);
+        return;
+      }
+
+      if (response.error) {
+        toast.error(response.error, { className: '!text-red-700' });
+      } else if (response.success === false) {
+        toast.error(response.error || 'Failed to create trip', {
+          className: '!text-red-700',
+        });
+      } else if (response.message?.includes('not logged')) {
+        toast.warning('Uh oh! You are not logged in!', {
+          className: '!text-yellow-700',
+        });
+      } else if (response.success === true) {
+        toast.success('Trip created successfully!', {
+          className: '!text-green-700',
+        });
+        router.push('/trips');
+      } else {
+        toast.success('Trip created successfully!', {
+          className: '!text-green-700',
+        });
+      }
+    } catch (error) {
+      toast.error(
+        `Failed to submit form: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { className: '!text-red-700' },
+      );
+    }
     setDisableBtn(false);
   };
 

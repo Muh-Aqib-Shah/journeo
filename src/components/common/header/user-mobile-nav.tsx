@@ -1,19 +1,16 @@
+'use client';
+
 import { IconPlaneTilt, IconSettingsFilled } from '@tabler/icons-react';
 import React from 'react';
 
 import { LogoutButton } from '@/components/auth/logoutButton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import type { Nav } from '@/lib/types/nav';
 
 import MobileLink from './mobile-link';
 
-const UserMobileNav = async () => {
-  //  const { getUser } = getKindeServerSession();
-  const user = {
-    family_name: 'Shah',
-    email: 'aqibShah@gmai.com',
-    given_name: 'Aqib',
-  }; // await getUser();
+const UserMobileNav: React.FC<Nav> = ({ user }) => {
   return (
     <>
       <MobileLink href="/trips">
@@ -45,9 +42,7 @@ const UserMobileNav = async () => {
         className="flex h-auto w-full items-center justify-between px-8 py-4"
       >
         <div className="text-left">
-          <h3 className="font-medium">
-            {user?.given_name} {user?.family_name}
-          </h3>
+          <h3 className="font-medium">{user?.username}</h3>
           <p className="text-gray-500">{user?.email}</p>
         </div>
         <LogoutButton variant="MOBILE" />

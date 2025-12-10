@@ -45,11 +45,13 @@ export const LoginForm: React.FC<LoginProps> = ({ access_token }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),
     });
-    // if(!response.ok) router.push("/login")
+    if(response.ok){ router.push('/explore'); 
+      router.refresh();
+    }
+
     const data = await response.json();
     if (response.ok) {
       toast.success(data.message);
-      router.push('/explore');
     } else toast.error(data.message);
     setDisableBtn(false);
   };

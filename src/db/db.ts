@@ -9,5 +9,3 @@ export const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
 });
-
-// mysql://root:QdmKwYpWEMjjeqJTEYAZVZNhNiJkuFWa@crossover.proxy.rlwy.net:50071/railway

@@ -13,16 +13,23 @@ export function useActivities({
   const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!latitude || !longitude) return;
+    if (!latitude || !longitude) {
+      return;
+    }
 
     async function fetchActivities() {
-      setLoading(true);
-      const res = await fetchWithAuth(
-        `/api/activities?lat=${latitude}&lng=${longitude}`,
-      );
-      const data = await res.json();
-      setActivities(data.data || []);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const res = await fetchWithAuth(
+          `/api/activities?lat=${latitude}&lng=${longitude}`,
+        );
+        const data = await res.json();
+        setActivities(data.data || data || []);
+        setLoading(false);
+      } catch (error) {
+        setActivities([]);
+        setLoading(false);
+      }
     }
 
     fetchActivities();

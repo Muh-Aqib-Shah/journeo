@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   if (!accessToken) {
     return NextResponse.json(
       { success: false, error: 'Action not allowed' },
-      { status: 400 },
+      { status: 401 },
     );
   }
   const { userId } = jwt.verify(

@@ -7,16 +7,16 @@ import { pool } from '@/db/db';
 export async function GET(req: NextRequest) {
   const { cookies } = req;
   const accessToken = cookies.get('access_token')?.value;
-  if (!accessToken) {
-    return NextResponse.json(
-      { data: null, success: false, error: 'Action not allowed' },
-      { status: 400 },
-    );
+
+  let userId = null;
+
+  if (accessToken) {
+    const decoded = jwt.verify(
+      accessToken || '',
+      process.env?.ACCESS_TOKEN_SECRET ?? '',
+    ) as { userId: number };
+    userId = decoded.userId;
   }
-  const { userId } = jwt.verify(
-    accessToken,
-    process.env?.ACCESS_TOKEN_SECRET ?? '',
-  ) as { userId: number };
 
   try {
     const [rows] = await pool.query(`
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     INNER JOIN users u ON t.user_id = u.user_id
     LEFT JOIN favourite f ON t.trip_id = f.trip_id
     LEFT JOIN comment c ON t.trip_id = c.trip_id
-    LEFT JOIN favourite f_user ON f_user.user_id = ${userId} and f_user.trip_id = t.trip_id 
+    LEFT JOIN favourite f_user ON f_user.user_id = ${accessToken ? userId : -1} and f_user.trip_id = t.trip_id 
     WHERE t.is_public = TRUE
     GROUP BY 
         t.trip_id

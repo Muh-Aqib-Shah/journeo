@@ -21,15 +21,19 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
   let res = await fetch(completeUrl, options);
 
-  if (res.status === 400) {
-    const refreshRes = await fetch(`${completeUrl}/api/auth/refresh`, {
+  let res = await fetch(completeUrl, fetchOptions);
+
+  // Only auto-refresh on 401 (Unauthorized), not 400 (Bad Request)
+  if (res.status === 401) {
+    const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, {
       method: 'POST',
+      credentials: 'include',
     });
     if (refreshRes.ok) {
-      res = await fetch(completeUrl, options);
+      res = await fetch(completeUrl, fetchOptions);
     } else {
       if (isServer) {
-        return NextResponse.redirect(new URL('/login', url));
+        return NextResponse.redirect(`${baseUrl}/login`);
       }
       window.location.href = '/login';
       return new Response(null, { status: 401 });

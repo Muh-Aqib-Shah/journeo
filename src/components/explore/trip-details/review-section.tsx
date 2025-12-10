@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { fetchWithAuth } from '@/lib/auth';
 
 interface ReviewTypes {
   comment_text: string;
@@ -34,7 +35,7 @@ async function addCommentsForTrip(
   setValue: React.Dispatch<React.SetStateAction<ReviewTypes[]>>,
 ) {
   try {
-    const res = await fetch(`/api/explore/trips/comment/add`, {
+    const res = await fetchWithAuth(`/api/explore/trips/comment/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,13 +71,8 @@ export const Reviews: React.FC<CommentProps> = ({ trip_id }) => {
 
     getComments();
   }, []);
-
-  if (comments.length === 0) {
-    return (
-      <div className="flex items-center justify-center">
-        <p>No Reviews for this trip!</p>
-      </div>
-    );
+  if(!comments){
+    return <div></div>
   }
 
   return (
@@ -85,7 +81,12 @@ export const Reviews: React.FC<CommentProps> = ({ trip_id }) => {
         <h2 className="text-2xl font-bold text-foreground">Review(s)</h2>
       </div>
       <hr />
-      {comments.map((cmnt) => (
+      {comments.length === 0 ? 
+        <div className="flex items-center justify-center">
+        <p>No Reviews for this trip!</p>
+      </div>
+      :
+      (comments.map((cmnt) => (
         <div className="flex" key={cmnt.comment_id}>
           <div>
             <Avatar>
@@ -100,7 +101,7 @@ export const Reviews: React.FC<CommentProps> = ({ trip_id }) => {
             <div>{cmnt.comment_text} </div>
           </div>
         </div>
-      ))}
+      )))}
       <hr />
       <div className="relative flex pt-5">
         <div>
