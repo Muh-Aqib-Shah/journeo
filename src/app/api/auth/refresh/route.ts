@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
       },
     );
   } catch (err) {
-    console.error('Refresh token error:', err);
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 }

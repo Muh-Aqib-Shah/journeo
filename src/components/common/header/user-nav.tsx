@@ -1,3 +1,5 @@
+'use client';
+
 import { IconPlaneTilt, IconSettingsFilled } from '@tabler/icons-react';
 import React from 'react';
 
@@ -11,27 +13,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import type { Nav } from '@/lib/types/nav';
 
-import { getUser } from '../get-user';
-
-const UserNav = async () => {
-  const user = await getUser();
-
+const UserNav: React.FC<Nav> = ({ user }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar className="size-8">
           <AvatarImage src={undefined} />
-          <AvatarFallback>{user?.data?.username?.at(0) ?? ''}</AvatarFallback>
+          <AvatarFallback>{user?.username?.at(0) ?? ''}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="p-2 md:w-56">
         <div className="mb-2 space-y-1">
           <DropdownMenuLabel className="text-ellipsis text-nowrap py-0 font-medium">
-            {user?.data.username}
+            {user?.username}
           </DropdownMenuLabel>
           <DropdownMenuLabel className="text-ellipsis text-nowrap py-0 font-normal text-gray-500">
-            {user?.data.email}
+            {user?.email}
           </DropdownMenuLabel>
         </div>
         <DropdownMenuSeparator />

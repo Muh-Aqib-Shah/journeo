@@ -69,19 +69,11 @@ const DestinationDetails: React.FC<Props> = ({
       return;
 
     const delayDebounce = setTimeout(async () => {
-      try {
-        console.log('Searching destinations for:', destination);
-        const res = await fetchWithAuth(
-          `/api/search-destinations?query=${destination}`,
-        );
-        console.log('Search response status:', res.status);
-        const data = await res.json();
-        console.log('Search suggestions:', data);
-        setSuggestions(data);
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        setSuggestions([]);
-      }
+      const res = await fetchWithAuth(
+        `/api/search-destinations?query=${destination}`,
+      );
+      const data = await res.json();
+      setSuggestions(data);
     }, 300);
 
     return function cleanup(): void {
@@ -138,25 +130,18 @@ const DestinationDetails: React.FC<Props> = ({
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
+                          if (e.key === 'Enter' || e.key === ' ')
                             setSelected(place.city);
-                            field.onChange(place.city);
-                            setCoords({
-                              latitude: Number(place.geoCode.latitude),
-                              longitude: Number(place.geoCode.longitude),
-                            });
-                            setSuggestions(null);
-                          }
+                          field.onChange(place.city);
+                          setCoords(place.geoCode);
+                          setSuggestions(null);
                         }}
                         key={idx}
                         className="cursor-pointer px-3 py-2 hover:bg-gray-100"
                         onClick={() => {
                           setSelected(place.city);
                           field.onChange(place.city);
-                          setCoords({
-                            latitude: Number(place.geoCode.latitude),
-                            longitude: Number(place.geoCode.longitude),
-                          });
+                          setCoords(place.geoCode);
                           setSuggestions(null);
                         }}
                       >

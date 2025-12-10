@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDays } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import type { Control, UseFormTrigger, UseFormWatch } from 'react-hook-form';
@@ -66,6 +67,8 @@ export default function TripForm() {
   const [disableBtn, setDisableBtn] = useState<boolean>(false);
   const [latNlong, setLatNlong] = useState<null | Coordinates>(null);
 
+  const router = useRouter();
+
   const form = useForm<CreateTripType>({
     defaultValues: {
       destination: '',
@@ -82,7 +85,6 @@ export default function TripForm() {
   const onSubmit = async (values: CreateTripType) => {
     setDisableBtn(true);
     try {
-      console.log('Submitting trip form with values:', values);
       const data = await fetchWithAuth('/api/create-trip', {
         method: 'POST',
         headers: {
@@ -91,26 +93,17 @@ export default function TripForm() {
         body: JSON.stringify(values),
       });
 
-      console.log('Response status:', data.status);
-      console.log('Response headers:', data.headers.get('content-type'));
-
       const responseText = await data.text();
-      console.log('Response text:', responseText);
-
       let response;
       try {
         response = JSON.parse(responseText);
       } catch (parseError) {
-        console.error('Failed to parse JSON:', parseError);
-        console.error('Response body was:', responseText.substring(0, 500));
         toast.error('Server returned invalid response', {
           className: '!text-red-700',
         });
         setDisableBtn(false);
         return;
       }
-
-      console.log('Response JSON:', response);
 
       if (response.error) {
         toast.error(response.error, { className: '!text-red-700' });
@@ -126,14 +119,13 @@ export default function TripForm() {
         toast.success('Trip created successfully!', {
           className: '!text-green-700',
         });
+        router.push('/trips');
       } else {
-        console.warn('Unexpected response structure:', response);
         toast.success('Trip created successfully!', {
           className: '!text-green-700',
         });
       }
     } catch (error) {
-      console.error('Form submission error:', error);
       toast.error(
         `Failed to submit form: ${error instanceof Error ? error.message : 'Unknown error'}`,
         { className: '!text-red-700' },

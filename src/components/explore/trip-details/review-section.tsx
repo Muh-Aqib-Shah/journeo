@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { fetchWithAuth } from '@/lib/auth';
 
 interface ReviewTypes {
   comment_text: string;
@@ -34,7 +35,7 @@ async function addCommentsForTrip(
   setValue: React.Dispatch<React.SetStateAction<ReviewTypes[]>>,
 ) {
   try {
-    const res = await fetch(`/api/explore/trips/comment/add`, {
+    const res = await fetchWithAuth(`/api/explore/trips/comment/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,6 +71,9 @@ export const Reviews: React.FC<CommentProps> = ({ trip_id }) => {
 
     getComments();
   }, []);
+  if(!comments){
+    return <div></div>
+  }
 
   return (
     <div className="space-y-6">

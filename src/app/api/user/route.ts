@@ -20,10 +20,12 @@ export async function GET(req: NextRequest) {
   ) as { userId: number };
 
   try {
-    const [rows] = await pool.query(
+    const [rows]: any = await pool.query(
       `SELECT user_id, username, email FROM users WHERE user_id=${userId}`,
     );
-    return Response.json({ data: rows, success: true }, { status: 200 });
+    const user = rows[0];
+
+    return Response.json({ ...user }, { status: 200 });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message, success: false },

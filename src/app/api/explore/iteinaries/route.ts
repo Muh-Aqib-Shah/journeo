@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     let username = url.searchParams.get('username');
     const tripId = url.searchParams.get('id');
 
-    if (!username) {
+    if (username === 'null') {
       const accessToken = req.cookies.get('access_token')?.value;
       if (!accessToken) {
         return NextResponse.json(

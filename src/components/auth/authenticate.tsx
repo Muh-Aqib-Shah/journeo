@@ -40,19 +40,18 @@ export const LoginForm: React.FC<LoginProps> = ({ access_token }) => {
   const onSubmit = async (values: SignupType) => {
     setDisableBtn(true);
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth//register';
-    console.log("GOING TO: ",endpoint)
     const response = await fetchWithAuth(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),
     });
-    // if(!response.ok) router.push("/login")
+    if(response.ok){ router.push('/explore'); 
+      router.refresh();
+    }
+
     const data = await response.json();
     if (response.ok) {
       toast.success(data.message);
-      // Store user email for display in header
-      localStorage.setItem('userEmail', values.email);
-      router.push('/explore');
     } else toast.error(data.message);
     setDisableBtn(false);
   };

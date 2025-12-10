@@ -1,3 +1,5 @@
+'use client';
+
 import { IconMenu2, IconWorld } from '@tabler/icons-react';
 import Link from 'next/link';
 import React from 'react';
@@ -5,15 +7,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import type { Nav } from '@/lib/types/nav';
 
-import { getUser } from '../get-user';
 import MobileLink from './mobile-link';
 import UserMobileNav from './user-mobile-nav';
 
-const MobileNav = async () => {
-  const user = await getUser();
-  const isLoggedIn = user.success;
-
+const MobileNav: React.FC<Nav> = ({ isLoggedIn, user }) => {
   return (
     <Sheet>
       <SheetTrigger asChild className="block cursor-pointer sm:hidden">
@@ -32,7 +31,7 @@ const MobileNav = async () => {
             </Button>
           </MobileLink>
           {isLoggedIn ? (
-            <UserMobileNav />
+            <UserMobileNav isLoggedIn={isLoggedIn} user={user} />
           ) : (
             <>
               <Separator />
