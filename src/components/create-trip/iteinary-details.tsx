@@ -3,7 +3,7 @@
 'use client';
 
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { format, isBefore } from 'date-fns';
+import { format, isBefore, startOfDay } from 'date-fns';
 import { Loader } from 'lucide-react';
 import type { Control, FieldValues, UseFormWatch } from 'react-hook-form';
 import { useFormContext } from 'react-hook-form';
@@ -85,17 +85,37 @@ const IteinaryDetails: React.FC<Props> = ({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        initialFocus
-                        mode="range"
-                        disabled={(date) => isBefore(date, new Date())}
-                        defaultMonth={field.value?.from}
-                        selected={field.value}
-                        onSelect={(selectedDate) => {
-                          field.onChange(selectedDate);
-                        }}
-                        numberOfMonths={2}
-                      />
+                      <div className="p-3">
+                        {field.value?.from && field.value?.to && (
+                          <div className="mb-2 flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() =>
+                                field.onChange({
+                                  from: undefined,
+                                  to: undefined,
+                                })
+                              }
+                            >
+                              Clear Dates
+                            </Button>
+                          </div>
+                        )}
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          disabled={(date) =>
+                            isBefore(date, startOfDay(new Date()))
+                          }
+                          defaultMonth={field.value?.from}
+                          selected={field.value}
+                          onSelect={(selectedDate) => {
+                            field.onChange(selectedDate);
+                          }}
+                          numberOfMonths={2}
+                        />
+                      </div>
                     </PopoverContent>
                   </Popover>
                 </FormControl>

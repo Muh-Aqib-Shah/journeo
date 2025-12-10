@@ -40,18 +40,25 @@ async function getSuggestedTrips(tripId: number, setState: any) {
 }
 
 interface SuggestedProps {
-  tripId: number;
+  tripId?: number;
+  currentTripId?: number;
 }
 
-export const SuggestedTrips: React.FC<SuggestedProps> = ({ tripId }) => {
+export const SuggestedTrips: React.FC<SuggestedProps> = ({
+  tripId,
+  currentTripId,
+}) => {
+  const id = tripId || currentTripId;
   const [state, setState] = useState<any>(null);
 
   useEffect(() => {
     async function getTrips() {
-      await getSuggestedTrips(tripId, setState);
+      if (id) {
+        await getSuggestedTrips(id, setState);
+      }
     }
     getTrips();
-  }, []);
+  }, [id]);
 
   if (!state) {
     return <div>Nothing here yet</div>;

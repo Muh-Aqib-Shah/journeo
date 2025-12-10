@@ -18,15 +18,22 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const completeUrl = baseUrl + url;
 
-  let res = await fetch(completeUrl, options);
+  // Ensure credentials are included so cookies (access_token) are sent
+  const fetchOptions: RequestInit = {
+    ...options,
+    credentials: 'include',
+  };
 
-  if (res.status === 400) {
+  let res = await fetch(completeUrl, fetchOptions);
+
+  // Only auto-refresh on 401 (Unauthorized), not 400 (Bad Request)
+  if (res.status === 401) {
     const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
     });
     if (refreshRes.ok) {
-      res = await fetch(completeUrl, options);
+      res = await fetch(completeUrl, fetchOptions);
     } else {
       if (isServer) {
         return NextResponse.redirect(`${baseUrl}/login`);

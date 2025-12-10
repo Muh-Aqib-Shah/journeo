@@ -81,25 +81,64 @@ export default function TripForm() {
 
   const onSubmit = async (values: CreateTripType) => {
     setDisableBtn(true);
-    const data = await fetchWithAuth('/api/create-trip/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(values),
-    });
-    const response = await data.json();
+    try {
+      console.log('Submitting trip form with values:', values);
+      const data = await fetchWithAuth('/api/create-trip', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
 
-    if (response.error)
-      toast.error('Internal server error', { className: '!text-red-700' });
-    else if (response.message.includes('not logged'))
-      toast.warning('Uh oh! You are not logged in!', {
-        className: '!text-yellow-700',
-      });
-    else
-      toast.success('Form submitted successfully.', {
-        className: '!text-green-700',
-      });
+      console.log('Response status:', data.status);
+      console.log('Response headers:', data.headers.get('content-type'));
+
+      const responseText = await data.text();
+      console.log('Response text:', responseText);
+
+      let response;
+      try {
+        response = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse JSON:', parseError);
+        console.error('Response body was:', responseText.substring(0, 500));
+        toast.error('Server returned invalid response', {
+          className: '!text-red-700',
+        });
+        setDisableBtn(false);
+        return;
+      }
+
+      console.log('Response JSON:', response);
+
+      if (response.error) {
+        toast.error(response.error, { className: '!text-red-700' });
+      } else if (response.success === false) {
+        toast.error(response.error || 'Failed to create trip', {
+          className: '!text-red-700',
+        });
+      } else if (response.message?.includes('not logged')) {
+        toast.warning('Uh oh! You are not logged in!', {
+          className: '!text-yellow-700',
+        });
+      } else if (response.success === true) {
+        toast.success('Trip created successfully!', {
+          className: '!text-green-700',
+        });
+      } else {
+        console.warn('Unexpected response structure:', response);
+        toast.success('Trip created successfully!', {
+          className: '!text-green-700',
+        });
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      toast.error(
+        `Failed to submit form: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { className: '!text-red-700' },
+      );
+    }
     setDisableBtn(false);
   };
 

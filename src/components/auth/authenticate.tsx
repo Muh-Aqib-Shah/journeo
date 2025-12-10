@@ -50,6 +50,8 @@ export const LoginForm: React.FC<LoginProps> = ({ access_token }) => {
     const data = await response.json();
     if (response.ok) {
       toast.success(data.message);
+      // Store user email for display in header
+      localStorage.setItem('userEmail', values.email);
       router.push('/explore');
     } else toast.error(data.message);
     setDisableBtn(false);

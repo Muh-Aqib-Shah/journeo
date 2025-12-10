@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
-import type { NextApiRequest } from 'next';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { pool } from '@/db/db';
 
-export async function POST(req: NextApiRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const refreshToken = req.cookies.refresh_token; // cookies()//.get('refresh_token')?.value;
+    const refreshToken = req.cookies.get('refresh_token')?.value;
 
     if (!refreshToken) {
       return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
@@ -17,7 +17,7 @@ export async function POST(req: NextApiRequest) {
     );
 
     const [rows] = await pool.query(
-      'SELECT * FROM users WHERE id = ? AND refresh_token = ?',
+      'SELECT * FROM users WHERE user_id = ? AND refresh_token = ?',
       [payload.userId, refreshToken],
     );
     const user = (rows as any)[0];
@@ -28,7 +28,7 @@ export async function POST(req: NextApiRequest) {
       );
 
     const accessToken = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.user_id, email: user.email },
       process.env.ACCESS_TOKEN_SECRET!,
       { expiresIn: '60m' },
     );
@@ -43,6 +43,7 @@ export async function POST(req: NextApiRequest) {
       },
     );
   } catch (err) {
+    console.error('Refresh token error:', err);
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 }
