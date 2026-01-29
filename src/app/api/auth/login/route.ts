@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { serialize } from 'cookie';
 import jwt from 'jsonwebtoken';
 import type { NextRequest } from 'next/server';
@@ -83,13 +83,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-/* eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
-eyJlbWFpbCI6ImFxaWIxMDFAZ21haWwuY29tIiwiaWF0IjoxNzY1MTEwMzkxLCJleHAiOjE3NjUxMTEyOTF9.QU1sRGMtagx9VE6Lq9mRpLX27qC77tjmkFO-
-gFs8QXY
-*/
-
-/* eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
-eyJlbWFpbCI6ImFxaWIxMDFAZ21haWwuY29tIiwiaWF0IjoxNzY1MTEwMzkxLCJleHAiOjE3NjUxMTEyOTF9.QU1sRGMtagx9VE6Lq9mRpLX27qC77tjmkFO-
-gFs8QXY
-*/

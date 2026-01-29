@@ -27,10 +27,10 @@ export function middleware(req: NextRequest) {
 
   const protectedRoutes = ['/trips', '/create-trip'];
   if (protectedRoutes.includes(url.pathname)) {
-    /* if (!isValidToken) {
+    if (!isValidToken) {
       url.pathname = '/login';
       return NextResponse.redirect(url);
-    } */
+    }
   }
 
   return NextResponse.next();

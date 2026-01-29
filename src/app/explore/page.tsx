@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 import ExploreClient from '@/components/explore/explore-client';
 import { fetchWithAuth } from '@/lib/auth';
@@ -15,8 +14,6 @@ async function getExploreTrips() {
     headers,
     cache: 'no-cache',
   });
-
-  if (!res.ok) redirect('/login');
 
   const { data } = await res.json();
   return data ?? [];

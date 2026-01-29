@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
+  // output: 'export', // Outputs a Single-Page Application (SPA).
+  // distDir: './dist', // Changes the build output directory to `./dist/`.
+  experimental: {
+    reactCompiler: true,
+  },
+  images: {
         remotePatterns: [
             {
                 protocol: "https",
@@ -9,6 +14,6 @@ const nextConfig = {
             },
         ],
     },
-};
-
-export default nextConfig;
+}
+ 
+export default nextConfig

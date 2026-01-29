@@ -24,13 +24,31 @@ async function getUser() {
   const cookieStore = cookies();
   const accessToken = cookieStore.get('access_token')?.value;
 
-  const headers: HeadersInit = {};
-  if (accessToken) headers.cookie = `access_token=${accessToken}`;
+  if (!accessToken) {
+    return null;
+  }
+
+  const headers: HeadersInit = {
+    cookie: `access_token=${accessToken}`,
+  };
 
   const res = await fetchWithAuth('/api/user', { headers });
 
-  const data = await res.json();
-  return data ?? null;
+  if (!res.ok) {
+    return null;
+  }
+
+  const contentType = res.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    return null;
+  }
+
+  try {
+    const data = await res.json();
+    return data ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export default async function RootLayout({

@@ -94,6 +94,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: tripInfo });
   } catch (err: any) {
+    console.log(err.message);
     return NextResponse.json(
       { success: false, error: err.message },
       { status: 500 },
