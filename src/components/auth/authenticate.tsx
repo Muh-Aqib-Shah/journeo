@@ -45,14 +45,15 @@ export const LoginForm: React.FC<LoginProps> = ({ access_token }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),
     });
-    if(response.ok){ router.push('/explore'); 
-      router.refresh();
-    }
-
     const data = await response.json();
+
     if (response.ok) {
       toast.success(data.message);
-    } else toast.error(data.message);
+      router.push('/explore');
+      router.refresh();
+    } 
+    else toast.error(data.message);
+    
     setDisableBtn(false);
   };
 
@@ -141,7 +142,7 @@ export const LoginForm: React.FC<LoginProps> = ({ access_token }) => {
                   <span>
                     <span>Don&apos;t have an account? </span>
                     <span
-                      className="text-primary underline-offset-4 hover:underline"
+                      className="cursor-pointer text-primary underline-offset-4 hover:underline"
                       onClick={() => setisLogin(false)}
                     >
                       Register here
@@ -151,7 +152,7 @@ export const LoginForm: React.FC<LoginProps> = ({ access_token }) => {
                   <span>
                     <span>Already have a account? </span>
                     <span
-                      className="text-primary underline-offset-4 hover:underline"
+                      className="cursor-pointer text-primary underline-offset-4 hover:underline"
                       onClick={() => setisLogin(true)}
                     >
                       Login here

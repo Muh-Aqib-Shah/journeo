@@ -11,11 +11,16 @@ export async function GET(req: NextRequest) {
   let userId = null;
 
   if (accessToken) {
-    const decoded = jwt.verify(
-      accessToken || '',
-      process.env?.ACCESS_TOKEN_SECRET ?? '',
-    ) as { userId: number };
-    userId = decoded.userId;
+    try {
+      const decoded = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN_SECRET!,
+      ) as { userId: number };
+
+      userId = decoded.userId;
+    } catch {
+      userId = null;
+    }
   }
 
   try {

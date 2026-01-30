@@ -40,7 +40,7 @@ const TripCard: React.FC<Props> = ({
   return (
     <Card className="cursor-pointer space-y-3 border-none shadow-none">
       <Link href={`/explore/${trip_id}?u=${username}`}>
-        <div className="h-[10.5rem] overflow-hidden rounded-lg">
+        <div className="h-[10.5rem] overflow-hidden rounded-lg pb-2">
           <Image
             src={cover_image_url}
             height={1000}
@@ -50,7 +50,7 @@ const TripCard: React.FC<Props> = ({
           />
         </div>
         <CardContent className="cursor-auto space-y-3 px-2 pb-0">
-          <span className="rounded-md bg-gray-200 p-1 text-sm">
+          <span className="mt-1 rounded-md bg-gray-200 p-1 text-sm">
             {total_days} days
           </span>
           <CardTitle className="w-full overflow-hidden text-ellipsis text-nowrap">
