@@ -1,6 +1,7 @@
 'use client';
 
 import { IconPlaneTilt, IconSettingsFilled } from '@tabler/icons-react';
+import Link from 'next/link';
 import React from 'react';
 
 import { LogoutButton } from '@/components/auth/logoutButton';
@@ -36,7 +37,9 @@ const UserNav: React.FC<Nav> = ({ user }) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <IconPlaneTilt className="mr-2 size-5 fill-gray-500 stroke-1 text-gray-500" />
-          <span>My Trips</span>
+          <Link href="/trips">
+            <span>My Trips</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <IconSettingsFilled className="mr-2 size-5 stroke-1 text-gray-500" />

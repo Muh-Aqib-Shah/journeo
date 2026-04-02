@@ -1,18 +1,23 @@
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get('access_token')?.value;
+
   const url = req.nextUrl;
 
   // Check if token is valid
   let isValidToken = false;
+
   if (accessToken) {
     try {
-      jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET || '');
+      const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
+
+      await jwtVerify(accessToken, secret);
       isValidToken = true;
-    } catch {
+    } catch (err) {
+      console.error('JWT ERROR:', err);
       isValidToken = false;
     }
   }
@@ -27,7 +32,9 @@ export function middleware(req: NextRequest) {
 
   const protectedRoutes = ['/trips', '/create-trip'];
   if (protectedRoutes.includes(url.pathname)) {
+    console.log('PROTECTEDDDDDDD ROUTEEEEEE');
     if (!isValidToken) {
+      console.log('GOING FROM ', url.pathname, 'To /login');
       url.pathname = '/login';
       return NextResponse.redirect(url);
     }
