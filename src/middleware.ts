@@ -17,7 +17,6 @@ export async function middleware(req: NextRequest) {
       await jwtVerify(accessToken, secret);
       isValidToken = true;
     } catch (err) {
-      console.error('JWT ERROR:', err);
       isValidToken = false;
     }
   }
@@ -32,9 +31,7 @@ export async function middleware(req: NextRequest) {
 
   const protectedRoutes = ['/trips', '/create-trip'];
   if (protectedRoutes.includes(url.pathname)) {
-    console.log('PROTECTEDDDDDDD ROUTEEEEEE');
     if (!isValidToken) {
-      console.log('GOING FROM ', url.pathname, 'To /login');
       url.pathname = '/login';
       return NextResponse.redirect(url);
     }
